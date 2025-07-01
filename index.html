@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> <!--adding the CSS file /> -->
+</head>
+<body> <!--title on app page when mouse cursor is hover on the browser window /> -->
+    <div class="container">
+        <img src="{{ url_for('static', filename='Bethel.png') }}" alt="Logo" class="logo" id="logo"> <!-- add your logo />-->
+        <h1>Spam Detection App</h1> <!-- actual title on the page /> -->
+        <label for="logoSize">Logo Size:</label>
+        <input type="range" id="logoSize" name="logoSize" min="50" max="300" value="150"> <!-- range for the slide bar that adjusts the logo size />-->
+        <form id="spamForm">
+            <textarea id="message" name="message" placeholder="Enter message to predict as spam or not..."></textarea> <!-- default placeholder message />-->
+            <button type="submit">Predict</button> <!---the check button />-->
+        </form>
+        <div id="result"></div>
+    </div>  <!-- adjusting the logo size below />-->
+    <script>
+        document.getElementById('logoSize').addEventListener('input', function() {
+            const logo = document.getElementById('logo');
+            logo.style.width = this.value + 'px';
+        });
+
+        document.getElementById('spamForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const message = document.getElementById('message').value;
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message }),
+            });
+            const result = await response.json();
+            const resultText = result.prediction === 1 ? 'Spam Email' : 'Safe Email'; // print Spam Email if 1 and print Safe email if 0
+            document.getElementById('result').innerText = resultText;
+            const button = document.querySelector('button[type="submit"]');
+            if (result.prediction === 1) {
+                button.style.backgroundColor = '#dc3545';  // red for spam
+            } else {
+                button.style.backgroundColor = '#28a745';  // green for safe
+            }
+        });
+    </script>
+</body>
+</html>
